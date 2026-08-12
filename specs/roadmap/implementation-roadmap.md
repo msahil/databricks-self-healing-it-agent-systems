@@ -11,7 +11,7 @@
 
 ### Exit criteria
 
-- Three initial use cases have named owners and measurable baselines.
+- Both target use cases (UC1 and UC2) have named owners and measurable baselines.
 - Source and action access are approved.
 - RACI, threat model, and business impact analysis are reviewed.
 - No unresolved ambiguity exists about the incident and change systems of record.
@@ -91,16 +91,18 @@
 
 ## First Vertical Slice
 
-The recommended first implementation is a failed Databricks workload:
+The recommended first implementation is [UC1 — Self-Healing IT Systems](../use-cases/uc1-self-healing-it.md), specifically a deploy-related degradation of a customer-facing service:
 
-1. Ingest job, task, compute, data-quality, code-change, and incident signals.
-2. Normalize workload, service, owner, environment, and dependency identities.
-3. Correlate related failures and upstream conditions.
-4. Enrich with recent deployments, configuration, historical incidents, and runbooks.
+1. Ingest New Relic alerts, APM and infrastructure metrics, synthetics, deployment markers, and ServiceNow tickets.
+2. Normalize service, owner, environment, and dependency identities; link New Relic entities to canonical services.
+3. Correlate the degradation, downstream impact, and the recent deployment into one situation.
+4. Enrich with the GitLab deploy, configuration, historical incidents, and runbooks.
 5. Rank root-cause hypotheses.
-6. Recommend retry, pause, rollback, or escalation.
-7. Execute only an approved idempotent retry in the first action release.
-8. Verify workload completion and downstream data health.
+6. Recommend rollback, scale-out, restart, or escalation.
+7. Execute only an approved, reversible deploy rollback in the first action release.
+8. Verify recovery from independent evidence: golden signals, synthetics, and the payment-success KPI.
+
+[UC2 — Agent Observability and Security](../use-cases/uc2-agent-observability-security.md) follows once the tracing, evaluation, and policy-gated action controls from the slice are in place, reusing the same spine against the customer GenAI assistant.
 
 ## Delivery Workstreams
 

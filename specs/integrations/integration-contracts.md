@@ -35,6 +35,11 @@ Canonical lifecycle events include:
 - `action.started|completed|failed`
 - `verification.completed`
 - `data_quality.degraded|restored`
+- `agent.interaction_completed` (UC2)
+- `agent.tool_call_denied` (UC2)
+- `agent.evaluation_completed` (UC2)
+- `agent.finding_created` (UC2)
+- `agent.quality_degraded` (UC2)
 
 ## ServiceNow
 
@@ -69,7 +74,7 @@ ServiceNow remains authoritative for records it owns. Conflicts must be surfaced
 - Cloud action skills must declare resource patterns and denied operations.
 - Provider A2A interfaces, if used, do not bypass action policy or evidence requirements.
 
-## Databricks and Enterprise Data Hub
+## Databricks
 
 - Use system tables and supported APIs for Databricks operational evidence.
 - Integrate jobs, pipelines, serving endpoints, SQL warehouses, compute, data quality, cost, and audit signals according to available interfaces.
@@ -84,14 +89,17 @@ ServiceNow remains authoritative for records it owns. Conflicts must be surfaced
 - Keep security response authority separate from general IT remediation authority.
 - Validate product availability, regional support, and interface details during implementation planning.
 
-## Lumos
+## New Relic
 
-Lumos is treated as an identity, access, and entitlement governance source. This role is assumed from the customer architecture and must be confirmed during implementation planning (Residual Open Decision RD-3 in `specs/reviews/red-team-review-001.md`).
+New Relic is treated as an external observability and alerting source: APM, infrastructure, logs, distributed traces, synthetic and browser telemetry, entity relationships, and New Relic-generated alerts and incidents. Interface scope and region availability must be confirmed during implementation planning (Residual Open Decision RD-3 in `specs/reviews/red-team-review-001.md`).
 
-- Consume access-request, grant, revocation, and entitlement-change signals as canonical `identity` and `change` events.
-- Use entitlement context to enrich incidents (who has access to an affected asset) and to inform authorization decisions, never to bypass them.
-- Read-only by default; any Lumos-mediated access change is a mutating action that MUST pass the action gateway and approval policy.
-- Preserve Lumos request and grant identifiers and honor source-of-record precedence with enterprise identity.
+- Ingest APM, infrastructure, log, trace, synthetic, and custom metric signals as canonical `telemetry_event`s, preserving New Relic entity GUIDs and account and region context.
+- Ingest New Relic alert conditions, violations, and incidents as `alert.opened|updated|closed`, preserving the source issue and incident identifiers.
+- Ingest deployment markers and change-tracking records as `deployment.*` and `change.*` signals.
+- Consume New Relic entity relationships (service maps) to enrich service topology, subject to the topology source-of-record precedence policy.
+- Query current state on demand through NRQL / NerdGraph for evidence, using a read-only investigation identity separate from any mutating identity.
+- Webhook and event delivery MUST be authenticated and replay-protected; alert and incident webhooks used to justify a mutating plan are subject to `FR-TEL-007`.
+- Mutating operations (for example acknowledging or closing a New Relic incident, or muting an alert condition during an approved maintenance window) MUST pass the action gateway and approval policy.
 
 ## Event Authenticity and Trust
 
@@ -111,12 +119,12 @@ Lumos is treated as an identity, access, and entitlement governance source. This
 - On an `unknown_result`, the action gateway MUST reconcile actual target state before any retry. No mutating retry may occur until state is confirmed.
 - Targets that support neither idempotency keys nor a reconciliation probe MUST be classified non-autonomous and require manual confirmation before any retry.
 
-## MCP and A2A
+## MCP
 
 - MCP servers are treated as tool adapters, not trust boundaries.
 - Every MCP tool requires registry metadata, schema validation, identity mapping, logging, and policy classification.
-- A2A communication requires authenticated agent identity, task schema, deadline, authority, and trace propagation.
-- Remote agents cannot expand their delegated authority or invoke local production tools directly.
+
+Agent-to-agent (A2A) federation across organizational boundaries is deferred; neither UC1 nor UC2 requires it in the first release. If it is introduced later, A2A communication must carry authenticated agent identity, task schema, deadline, authority, and trace propagation, and remote agents must not be able to expand delegated authority or invoke local production tools directly.
 
 ## Error Contract
 

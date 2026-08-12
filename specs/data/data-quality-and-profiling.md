@@ -28,6 +28,9 @@ Use for slowly changing reference datasets such as service ownership, skill regi
 | Agent outputs | Schema validity, evidence coverage, confidence distribution |
 | Actions | Missing approvals, duplicate keys, incomplete outcomes |
 | Knowledge | Stale documents, missing owners, access metadata |
+| Service health (UC1) | Golden-signal freshness, synthetic success, KPI availability, baseline coverage |
+| Monitored agents (UC2) | Trace completeness, evaluation coverage, groundedness and quality drift, cost anomalies |
+| Agent security (UC2) | Injection and jailbreak attempt rate, PII-redaction coverage, tool-denial rate, cross-account attempts |
 
 ## Custom Metrics
 
@@ -38,6 +41,8 @@ Use for slowly changing reference datasets such as service ownership, skill regi
 - Percentage of action records with completed verification.
 - Data freshness relative to the incident-analysis time.
 - Source availability by connector and region.
+- UC1: synthetic success rate by journey, golden-signal recovery time after an action, and payment-success KPI availability.
+- UC2: injection and jailbreak catch rate, unauthorized-action attempts blocked, PII-leakage incidents, groundedness by agent version, and cost per conversation.
 
 ## Drift Handling
 

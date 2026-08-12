@@ -35,9 +35,8 @@ flowchart TB
     ATL[Atlassian]
     GIT[GitLab]
     CLOUD[Hyperscalers]
-    LUMOS[Lumos]
+    NEWRELIC[New Relic]
     LAKEWATCH[Lakewatch]
-    EDH[Enterprise Data Hub]
   end
 
   SYSTEMS --> EVENT

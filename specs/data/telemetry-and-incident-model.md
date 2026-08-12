@@ -22,6 +22,19 @@ Normalized entities and relationships:
 - `maintenance_window`
 - `knowledge_document`
 
+Service-health signals (UC1):
+
+- `synthetic_check_result`
+- `service_level_signal`
+
+Monitored-agent telemetry (UC2):
+
+- `monitored_agent`
+- `agent_interaction`
+- `agent_tool_call`
+- `agent_evaluation_result`
+- `agent_finding`
+
 ### Gold
 
 Operational intelligence and outcomes:
@@ -156,6 +169,26 @@ A remediation plan MUST contain:
 - Rollback actions and rollback triggers.
 - Safe-stop behavior when rollback is unavailable.
 - Expiry time and invalidation conditions.
+
+## UC1 Service-Health Signals
+
+The generic `telemetry_event`, `alert`, `change`, and `deployment` entities carry most UC1 signal, with two additions and an explicit New Relic mapping.
+
+- `synthetic_check_result` — monitor id, journey (view-bill, login, make-payment), status, latency, failure reason, region, run time. Sourced from New Relic synthetics.
+- `service_level_signal` — service id, signal type (golden signal: error rate, latency, throughput, saturation; or business KPI such as payment-success rate), value, window, source, and baseline reference.
+- **New Relic mapping:** New Relic entities map to canonical `asset` and `service` identities with mapping confidence and provenance; entity relationships enrich `service_dependency`; deployment markers map to `deployment`; New Relic alerts and incidents map to `alert`. Only events with `signature_status = verified` justify a mutating action (`FR-TEL-007`).
+
+## Agent Observability and Security Model (UC2)
+
+These entities describe the monitored customer-facing GenAI assistant. They are distinct from `agent_run`, which records the platform's own reasoning agents.
+
+- `monitored_agent` — registry-linked identity: agent id, agent version, prompt version, policy version, tool allowlist, data classifications, evaluation-baseline reference, owner.
+- `agent_interaction` — interaction/session id, monitored-agent version, authenticated customer scope, input classification (untrusted), retrieved-context references, output reference, latency, token cost, and MLflow trace id.
+- `agent_tool_call` — interaction id, tool (skill) and version, argument classification, policy decision (allow/deny with reason), executed flag, idempotency key, and target scope.
+- `agent_evaluation_result` — evaluation-dataset version, metric (groundedness, correctness, hallucination, refusal, cost, containment), value, monitored-agent version, and judge-model version.
+- `agent_finding` — finding type (`prompt_injection`, `jailbreak`, `pii_leak`, `anomalous_tool_call`, `cost_anomaly`, `quality_drift`), severity, detector and version, session/interaction references, evidence references, and disposition.
+
+An `agent_finding` (security) or a `quality_drift` signal enters the incident spine as an `alert` or `security_finding` feeding correlation; from there UC2 reuses `situation`, `incident`, `evidence`, `hypothesis`, `remediation_plan`, `verification_result`, and `incident_outcome` unchanged. Raw prompts, retrieved content, and tool arguments carry data classification and are minimized or redacted before prompt construction and before appearing in traces (`NFR-SEC-003`, `NFR-SEC-010`).
 
 ## Identity and Topology
 

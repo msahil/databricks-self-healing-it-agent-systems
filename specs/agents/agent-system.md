@@ -11,9 +11,13 @@ The system uses a supervisor with specialized agents. The supervisor owns routin
 | RCA | Rank testable cause hypotheses | None |
 | Remediation planning | Build an executable but unapproved plan | None |
 | Verification | Assess effect and unintended impact | Read-only |
-| Supervisor | Sequence work and enforce state transitions | None |
+| Agent observability | Analyze monitored-agent traces and evaluation metrics; detect quality drift, groundedness regression, and cost or latency anomalies (UC2) | None |
+| Agent security | Triage injection, jailbreak, PII-leakage, and anomalous-tool-call detector output into security findings (UC2) | None |
+| Supervisor | Sequence work and enforce state transitions (deterministic, not a model) | None |
 
-Production mutations are performed by deterministic action workers through the action gateway, not by the remediation planning agent.
+The agent observability and agent security roles are additions for the Agent Observability and Security use case (UC2); the correlation, context-enrichment, RCA, remediation-planning, and verification roles serve both use cases. See `agent-orchestration.md` for the phase-by-phase mapping of agents to the automation for UC1 and UC2.
+
+Production mutations are performed by deterministic action workers through the action gateway, not by the remediation planning agent. The customer-proposed single "remediation agent" is deliberately split into a reasoning Remediation Planning Agent (no mutating access) and deterministic action workers.
 
 ## Orchestration Rules
 

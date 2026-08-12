@@ -4,6 +4,13 @@
 
 Reduce mean time to acknowledge, diagnose, remediate, and verify IT incidents by combining governed enterprise telemetry, Databricks lakehouse capabilities, specialized agents, deterministic orchestration, and policy-controlled automation.
 
+The first release of this solution accelerator is scoped to an energy-retail context through two target use cases:
+
+- **[UC1 — Self-Healing IT Systems](../use-cases/uc1-self-healing-it.md):** heal the customer-facing digital and application estate (New Relic-driven).
+- **[UC2 — Agent Observability and Security](../use-cases/uc2-agent-observability-security.md):** observe and secure the customer-facing GenAI assistant (MLflow-driven).
+
+Both use cases share one spine — telemetry, correlation, enrichment, RCA, policy-gated action, verification, and audit — pointed at services in UC1 and at the AI agents themselves in UC2.
+
 ## Target Outcomes
 
 - Detect and group related signals before alert volume overwhelms operators.
@@ -13,35 +20,33 @@ Reduce mean time to acknowledge, diagnose, remediate, and verify IT incidents by
 - Learn from operator decisions and completed incidents without silently changing production policy.
 - Maintain a complete audit trail for data access, reasoning, approvals, tool calls, changes, and outcomes.
 
-## Initial Personas
+## Personas
 
-| Persona | Primary need |
-|---|---|
-| Service desk analyst | Clear triage, ownership, and user impact |
-| Site reliability engineer | Fast evidence collection, diagnosis, and mitigation |
-| Application owner | Service-specific context and controlled remediation |
-| Security analyst | Security findings linked to operational context |
-| Change manager | Risk, approvals, maintenance windows, and rollback evidence |
-| Platform administrator | Reliable ingestion, governance, cost, and policy control |
-| Auditor | Reconstructable decisions and actions |
+| Persona | Primary need | Use case |
+|---|---|---|
+| Site reliability engineer | Fast evidence collection, diagnosis, and mitigation | UC1 |
+| Application / digital product owner | Service-specific context and controlled remediation | UC1 |
+| Payment & change operations | Payment-impact awareness, approvals, maintenance windows, rollback evidence | UC1 |
+| AI/ML platform owner | Agent health, quality drift, versioning, and rollback | UC2 |
+| AI governance & risk | Evaluation gates, autonomy policy, and safe behavior | UC2 |
+| Security analyst | Agent-security findings linked to operational context | UC2 |
+| Data protection / privacy officer | PII handling, erasure, and vulnerable-customer care | UC2 |
+| Platform administrator | Reliable ingestion, governance, cost, and policy control | UC1 + UC2 |
+| Auditor | Reconstructable decisions and actions | UC1 + UC2 |
 
-## Initial Use Cases
+## Target Use Cases
 
-### UC-01: Failed Databricks workload
+The first release is narrowed to two use cases, each specified in full under `specs/use-cases/`.
 
-Correlate failed jobs, cluster or serverless events, recent code or configuration changes, upstream data quality signals, and related incidents. Recommend retry, rollback, configuration correction, or owner escalation. Automate only pre-approved reversible actions.
+### UC1 — Self-Healing IT Systems
 
-### UC-02: Deployment-related service degradation
+Detect, diagnose, and safely remediate degradations across the energy retailer's customer-facing IT estate (app/portal, billing/payments, CRM, meter data management, integration middleware, cloud). New Relic is the primary observability source; remediation examples include rolling back a bad deploy, scaling out, restarting a stateless component, or failing over — all reversible and policy-gated. Full specification: [uc1-self-healing-it](../use-cases/uc1-self-healing-it.md).
 
-Detect a service-health degradation after a GitLab deployment, correlate application and cloud signals, identify the likely change, and propose rollback or traffic mitigation with approval and verification.
+### UC2 — Agent Observability and Security
 
-### UC-03: Cloud resource degradation
+Observe the health and enforce the safety of the retailer's customer-facing GenAI assistant: trace and evaluate every interaction (MLflow 3), detect quality drift, and stop prompt injection, PII leakage, and unauthorized financial actions before they reach a customer. Full specification: [uc2-agent-observability-security](../use-cases/uc2-agent-observability-security.md).
 
-Correlate cloud health, capacity, configuration, cost, and service topology. Recommend or execute a bounded capacity, restart, failover, or configuration action according to policy.
-
-### UC-04: Security finding with operational impact
-
-Receive a Lakewatch-originated finding or investigation event, enrich it with asset ownership and service context, and coordinate ticketing or containment through approved security workflows.
+The earlier exploratory use cases (failed Databricks workload, deployment degradation, cloud degradation, and security-finding triage) are folded into these two: workload/deployment/cloud remediation are incident classes within UC1, and security is refocused from generic IT findings onto the AI agents themselves in UC2.
 
 ## Operating Principles
 

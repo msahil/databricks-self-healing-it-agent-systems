@@ -1,7 +1,7 @@
 # Self-Healing IT and Agentic Systems Specifications
 
-Status: First draft, hardened by independent review RT-001
-Version: 0.2
+Status: First draft, hardened by independent review RT-001, narrowed to two target use cases
+Version: 0.3
 Date: 2026-08-12
 
 ## Purpose
@@ -17,39 +17,44 @@ The system is an incident intelligence and automation platform, not an unconstra
 ## Reading Order
 
 1. [Solution overview](architecture/00-solution-overview.md)
-2. [Reference architecture](architecture/01-reference-architecture.md)
-3. [Functional requirements](requirements/functional-requirements.md)
-4. [Non-functional requirements](requirements/non-functional-requirements.md)
-5. [Telemetry and incident model](data/telemetry-and-incident-model.md)
-6. [Data quality and profiling](data/data-quality-and-profiling.md)
-7. [Agent system](agents/agent-system.md)
-8. [Agent contracts](agents/agent-contracts.md)
-9. [Integration contracts](integrations/integration-contracts.md)
-10. [Security, safety, and autonomy](governance/security-safety-autonomy.md)
-11. [Evaluation, testing, and SLOs](operations/evaluation-testing-slos.md)
-12. [Implementation roadmap](roadmap/implementation-roadmap.md)
-13. [Architecture decisions](adrs/ADR-001-deterministic-orchestration.md)
-14. [Independent red-team review RT-001](reviews/red-team-review-001.md)
+2. [UC1 — Self-Healing IT Systems](use-cases/uc1-self-healing-it.md)
+3. [UC2 — Agent Observability and Security](use-cases/uc2-agent-observability-security.md)
+4. [Reference architecture](architecture/01-reference-architecture.md)
+5. [Functional requirements](requirements/functional-requirements.md)
+6. [Non-functional requirements](requirements/non-functional-requirements.md)
+7. [Telemetry and incident model](data/telemetry-and-incident-model.md)
+8. [Data quality and profiling](data/data-quality-and-profiling.md)
+9. [Agent system](agents/agent-system.md)
+10. [Agent contracts](agents/agent-contracts.md)
+11. [Agent orchestration](agents/agent-orchestration.md)
+12. [Integration contracts](integrations/integration-contracts.md)
+13. [Security, safety, and autonomy](governance/security-safety-autonomy.md)
+14. [Evaluation, testing, and SLOs](operations/evaluation-testing-slos.md)
+15. [Implementation roadmap](roadmap/implementation-roadmap.md)
+16. [Architecture decisions](adrs/ADR-001-deterministic-orchestration.md)
+17. [Independent red-team review RT-001](reviews/red-team-review-001.md)
 
 ## Scope
 
+The first release is scoped to two use cases in an energy-retail context: [UC1 — Self-Healing IT Systems](use-cases/uc1-self-healing-it.md) and [UC2 — Agent Observability and Security](use-cases/uc2-agent-observability-security.md).
+
 ### In scope
 
-- IT and platform telemetry ingestion and normalization.
-- Security findings from Lakewatch-compatible interfaces.
-- Incident detection, correlation, enrichment, diagnosis, and remediation.
-- ServiceNow, Atlassian, GitLab, cloud, Databricks, and enterprise tool integration.
+- IT and platform telemetry ingestion and normalization (UC1), primarily via New Relic, cloud, GitLab, and ServiceNow.
+- Incident detection, correlation, enrichment, diagnosis, and reversible, policy-gated remediation of the customer-facing estate (UC1).
+- Observability and security of customer-facing GenAI agents (UC2): MLflow tracing and evaluation, quality-drift detection, and prevention of prompt injection, PII leakage, and unauthorized actions, with Lakewatch findings.
 - Human-in-the-loop approvals and bounded autonomous remediation.
 - Databricks-native governance, data quality monitoring, data profiling, agent evaluation, and operational analytics.
 - Auditable incident and action histories.
 
 ### Out of scope for the first release
 
-- Enterprise-wide autonomous remediation.
-- Replacement of ServiceNow, existing observability tools, or security systems of record.
-- Fully autonomous high-impact infrastructure changes.
-- Generic conversational assistance unrelated to supported incidents.
-- Training a foundation model from scratch.
+- Use cases beyond UC1 and UC2 (for example generic IT-security-finding triage or data-pipeline-only incidents, except as incident classes within UC1).
+- Enterprise-wide autonomous remediation and fully autonomous high-impact infrastructure changes.
+- Replacement of ServiceNow, New Relic or other observability tools, or security systems of record.
+- Building the customer GenAI assistant itself (UC2 observes and secures a given agent).
+- Cross-organization agent-to-agent (A2A) federation.
+- Generic conversational assistance unrelated to the two use cases, and training a foundation model from scratch.
 
 ## Terminology
 
@@ -80,4 +85,4 @@ The system is an incident intelligence and automation platform, not an unconstra
 
 This draft is suitable for architecture and product review. It is not yet an approved production design. Open decisions and red-team findings are tracked under `specs/adrs/` and `specs/reviews/`.
 
-The first independent red-team pass ([RT-001](reviews/red-team-review-001.md)) has been completed. It raised 27 findings (nine Critical or High), applied the clearly-correct hardening to this baseline (new `FR-*` and `NFR-*` requirements, a corrected incident state machine, the Lumos integration contract, event-authenticity and loop-prevention controls, and evidence/erasure/clock-skew tightening), and recorded six Residual Open Decisions (RD-1..RD-6) for the customer and architecture board. These open decisions must be resolved before the relevant production gates.
+The first independent red-team pass ([RT-001](reviews/red-team-review-001.md)) has been completed. It raised 27 findings (nine Critical or High), applied the clearly-correct hardening to this baseline (new `FR-*` and `NFR-*` requirements, a corrected incident state machine, the New Relic integration contract, event-authenticity and loop-prevention controls, and evidence/erasure/clock-skew tightening), and recorded six Residual Open Decisions (RD-1..RD-6) for the customer and architecture board. These open decisions must be resolved before the relevant production gates.

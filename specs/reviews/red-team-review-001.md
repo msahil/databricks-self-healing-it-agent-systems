@@ -216,8 +216,8 @@ Verification uses "independent" health evidence and separate code paths "where p
 ### RT-21 — `specs/reviews/` was referenced but did not exist
 **Severity: Low** — Resolved by this document.
 
-### RT-22 — Lumos appears in the architecture diagram but has no integration contract
-**Severity: Low** — A named enterprise system with undefined responsibilities and interface. Resolved: a Lumos section is added to `integration-contracts.md` (as an identity/access-governance source, flagged for confirmation — see RD-3).
+### RT-22 — New Relic appears in the architecture diagram but has no integration contract
+**Severity: Low** — A named enterprise system with undefined responsibilities and interface. Resolved: a New Relic section is added to `integration-contracts.md` (as an external observability and alerting source, with interface scope flagged for confirmation — see RD-3).
 
 ### RT-23 — "Situation" lifecycle is orphaned from the state machine
 **Severity: Low** — Defined term and lifecycle events exist but the concept is absent from the incident state diagram. Addressed alongside RT-10.
@@ -260,7 +260,7 @@ The following were added or corrected in the baseline as a direct result of this
 | `FR-KNW-005` Injection neutralization at ingestion | functional-requirements | RT-03 |
 | `FR-ADM-005` Registry integrity and write-authority | functional-requirements | RT-07 |
 | Corrected incident state machine + situation promotion + state timeouts | 01-reference-architecture | RT-10, RT-23 |
-| Lumos integration section; event authenticity; loop prevention; unknown-result reconciliation | integration-contracts | RT-04, RT-05, RT-06, RT-22 |
+| New Relic integration section; event authenticity; loop prevention; unknown-result reconciliation | integration-contracts | RT-04, RT-05, RT-06, RT-22 |
 | Evidence snapshotting for mutable sources; erasure reconciliation; clock-skew note | telemetry-and-incident-model | RT-13, RT-14, RT-15 |
 
 ## Residual Open Decisions (owner: customer / architecture board)
@@ -269,7 +269,7 @@ These are genuine design choices this review deliberately did **not** decide:
 
 - **RD-1 Tenancy model.** Single-tenant-per-deployment vs multi-tenant. Drives `NFR-SEC-008` enforcement (separate catalogs vs row filters) and whether cross-tenant correlation is ever allowed. (RT-12)
 - **RD-2 Emergency-stop implementation substrate.** What the kill switch physically depends on so it survives orchestrator/model-serving degradation (e.g., credential revocation at the identity provider, gateway feature flag in a separate store). (RT-02)
-- **RD-3 Lumos role confirmation.** Confirm whether Lumos is the identity/access-governance source assumed here, and its interface/region availability. (RT-22)
+- **RD-3 New Relic interface scope.** Confirm the New Relic interfaces in scope (NRQL/NerdGraph, alert and incident webhooks, entity/service-map access), account and region coverage, and whether any New Relic-mediated action (incident acknowledge/close, alert muting) is in scope. (RT-22)
 - **RD-4 Verification independence standard.** Define, per risk tier, how "independent" verification evidence must be (different source lineage vs merely different query). (RT-20)
 - **RD-5 SLO finalization + error-budget policy** for availability and end-to-end MTTx. (RT-25, RT-26)
 - **RD-6 Approver authority matrix** mapping personas to approvable risk tiers. (RT-27)
