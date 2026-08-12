@@ -70,3 +70,39 @@ Initial targets to validate during design:
 | Action gateway | No duplicate action | 1 hour |
 
 Final values require business impact analysis and service-tier approval.
+
+## Hardening Requirements (added by Review RT-001)
+
+These requirements were added by the first independent red-team review (`specs/reviews/red-team-review-001.md`) to specify the availability and enforcement of the safety-critical control components. Each cites the finding it resolves.
+
+### Control-Plane Availability
+
+- `NFR-AVL-006` Processing of a single incident MUST be serialized to a single writer. Concurrent orchestrator instances MUST use leader election, leases, or optimistic version checks on `incident.version` such that no state transition is silently overwritten and no incident is processed by two writers simultaneously. (RT-01)
+- `NFR-AVL-007` The action gateway MUST fail closed: on gateway degradation or outage, new mutating calls MUST be blocked, pending requests MUST be preserved in an ordered durable queue, and the condition MUST alert. The gateway MUST have its own availability SLO and be monitored independently of the agent and orchestration paths. (RT-01)
+
+### Autonomy Control
+
+- `NFR-AUT-001` Automatic autonomy reduction on threshold breach MUST apply hysteresis and rate limits to prevent flapping, MUST notify affected service owners, and MUST be audited. Autonomy may be reduced automatically but MUST only be increased or restored through explicit approval. (RT-18)
+- `NFR-AUT-002` The emergency-stop path MUST block new mutating calls within a bounded activation time (initial target: 5 seconds), MUST be triggerable by defined operator and security roles, and MUST depend on neither the model-serving path nor the analytical orchestration path. Emergency-stop and reconciliation procedures MUST be exercised on a defined schedule. (RT-02)
+- `NFR-AUT-003` Approval decisions MUST be presented with a decision-complete summary (targets, blast radius, rollback, expiry). The platform MUST monitor approval latency and throughput to detect rubber-stamping, MUST require a second approver for R2 and above, and MUST record approver dwell time as an audit signal. (RT-11)
+
+### Security and Privacy
+
+- `NFR-SEC-007` Prompt-injection and tool-output-injection defenses MUST be mechanized, not advisory. Trusted instructions MUST be structurally separated from untrusted retrieved content and tool output; tool selection MUST be enforced by the gateway from an orchestrator-supplied allowlist and MUST NOT be inferable from prompt content; agent outputs MUST be schema-constrained so free text can never become a tool invocation. (RT-03)
+- `NFR-SEC-008` The tenancy model MUST be explicitly declared and enforced at the Unity Catalog boundary (separate catalogs, row filtering, and workload identities as appropriate). Cross-tenant correlation of situations or incidents is prohibited unless explicitly governed and approved. (RT-12)
+- `NFR-SEC-009` Operator labels that feed evaluation MUST be attributable and tamper-evident. Bulk or statistically anomalous labeling activity MUST be detected and reviewed before it affects evaluation datasets or promotion decisions. (RT-19)
+- `NFR-SEC-010` Data-subject erasure MUST be reconciled with append-only audit through crypto-erasure or tokenization of personal fields — erasing the key or token while preserving the immutable record. The data-subject-erasure process MUST be defined before production. (RT-14)
+
+### Explainability and Quality
+
+- `NFR-QLT-005` Confidence calibration MUST be measured per agent version (for example, expected calibration error or reliability diagrams). Autonomy and promotion gates MUST rely on outcome-validated metrics, not on raw, uncalibrated model confidence. (RT-08)
+- `NFR-QLT-006` Evaluation MUST distinguish operator acceptance from confirmed-outcome correctness (post-incident confirmed cause and verified remediation). Promotion to bounded autonomy (A4) MUST use confirmed outcomes, not acceptance rate alone. (RT-09)
+- `NFR-QLT-007` Audit replay MUST reconstruct decisions from recorded agent inputs and outputs rather than by re-inference. Model, version, and generation parameters MUST be pinned and recorded for every decision so a decision is reproducible as a verification of record. (RT-17)
+
+### Cost
+
+- `NFR-CST-004` Exhaustion of any agent budget (iterations, tool calls, retrieved context, or elapsed time) MUST produce a classified `inconclusive` result and escalation. Budget exhaustion MUST NOT yield a silently truncated conclusion presented as complete, nor grant expanded authority. (RT-16)
+
+### Auditability
+
+- `NFR-AUD-005` The maximum tolerated clock skew per event source MUST be documented, and correlation windows MUST widen to account for it. Events whose timestamps fall outside the tolerated skew MUST be flagged and de-weighted in correlation. (RT-15)

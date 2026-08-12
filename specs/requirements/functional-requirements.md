@@ -80,3 +80,15 @@
 - `FR-ADM-002` Promotion to production MUST require evaluation evidence and approval.
 - `FR-ADM-003` Administrators MUST be able to set autonomy by service, environment, action type, risk tier, and time window.
 - `FR-ADM-004` The system MUST support replay of historical incidents without invoking production actions.
+
+## Hardening Requirements (added by Review RT-001)
+
+These requirements were added by the first independent red-team review (`specs/reviews/red-team-review-001.md`) to close mechanism gaps in the v0.1 baseline. Each cites the finding it resolves.
+
+- `FR-COR-006` The system MUST define and record explicit criteria for promoting a situation to a tracked incident, including which signals, thresholds, or operator actions cause promotion, and MUST preserve the originating situation identifier on the incident. (RT-10, RT-23)
+- `FR-TEL-007` Events used as the sole justification for an autonomous or mutating action MUST have `integrity.signature_status = verified`. Unverified or failed-signature events MAY inform display and human analysis but MUST NOT be the sole basis for a mutating plan. Webhook and event producers MUST be authenticated and replay-protected. (RT-06)
+- `FR-KNW-005` Ingested knowledge and any retrieved external content MUST be scanned and neutralized for embedded instructions (prompt injection) before indexing and again before prompt construction, and MUST carry a source trust label. Content that cannot be neutralized MUST NOT be used as autonomous-action justification. (RT-03)
+- `FR-ACT-008` Every mutating skill MUST declare a reconciliation probe that determines whether the action took effect. On an `unknown_result` the action gateway MUST reconcile actual target state before any retry; no mutating retry may occur until state is confirmed. Actions whose targets support neither idempotency nor a reconciliation probe MUST be classified non-autonomous and require manual confirmation. (RT-04)
+- `FR-ACT-009` Events causally produced by the platform's own actions MUST be origin-tagged and MUST NOT be treated as independent source signals for correlation or diagnosis. The orchestrator MUST enforce a per-target action rate limit and a post-action "expect transient" suppression window that is independent of analysis budgets. (RT-05)
+- `FR-VER-006` A resolved incident that recurs within a configurable window MUST be reopenable, creating either a reactivation or a linked successor incident with the prior history preserved and referenced. Reopening MUST re-enter the state machine at enrichment or diagnosis, not bypass them. (RT-10)
+- `FR-ADM-005` Writes to any registry (agents, skills, prompts, policies, schemas, workflows) MUST be authenticated, signed, audit-logged, and performed by identities segregated from execution and approval. Unsigned or unreviewed artifacts MUST NOT be promoted to production, and policy changes MUST pass the same release gates as agents. (RT-07)

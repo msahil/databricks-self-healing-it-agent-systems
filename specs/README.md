@@ -1,7 +1,7 @@
 # Self-Healing IT and Agentic Systems Specifications
 
-Status: First draft
-Version: 0.1
+Status: First draft, hardened by independent review RT-001
+Version: 0.2
 Date: 2026-08-12
 
 ## Purpose
@@ -29,6 +29,7 @@ The system is an incident intelligence and automation platform, not an unconstra
 11. [Evaluation, testing, and SLOs](operations/evaluation-testing-slos.md)
 12. [Implementation roadmap](roadmap/implementation-roadmap.md)
 13. [Architecture decisions](adrs/ADR-001-deterministic-orchestration.md)
+14. [Independent red-team review RT-001](reviews/red-team-review-001.md)
 
 ## Scope
 
@@ -78,3 +79,5 @@ The system is an incident intelligence and automation platform, not an unconstra
 ## Review Status
 
 This draft is suitable for architecture and product review. It is not yet an approved production design. Open decisions and red-team findings are tracked under `specs/adrs/` and `specs/reviews/`.
+
+The first independent red-team pass ([RT-001](reviews/red-team-review-001.md)) has been completed. It raised 27 findings (nine Critical or High), applied the clearly-correct hardening to this baseline (new `FR-*` and `NFR-*` requirements, a corrected incident state machine, the Lumos integration contract, event-authenticity and loop-prevention controls, and evidence/erasure/clock-skew tightening), and recorded six Residual Open Decisions (RD-1..RD-6) for the customer and architecture board. These open decisions must be resolved before the relevant production gates.

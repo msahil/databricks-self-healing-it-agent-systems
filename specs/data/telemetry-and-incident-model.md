@@ -118,6 +118,8 @@ Each evidence item MUST include:
 
 Agents must not cite a temporary prompt position or free-form URL as the sole evidence reference.
 
+For mutable sources (for example a ServiceNow ticket or a live cloud configuration), evidence MUST capture an immutable content snapshot with a content hash at retrieval time. A live reference alone is insufficient, because the underlying record can change after the evidence is cited and silently break audit reconstruction (Review RT-013).
+
 ## Hypothesis Model
 
 ```json
@@ -159,6 +161,12 @@ A remediation plan MUST contain:
 
 Every source must map to canonical asset and service identities. Mapping confidence and provenance are stored. Unknown or ambiguous mappings cannot receive autonomous actions. Service dependencies are time-versioned so historical incident replay uses the topology valid at incident time.
 
+## Time and Clock Skew
+
+Correlation and evidence ordering depend on timestamps from heterogeneous sources. The maximum tolerated clock skew per source MUST be documented, and correlation windows MUST widen to account for it (`NFR-AUD-005`). Events whose timestamps fall outside the tolerated skew are flagged and de-weighted rather than trusted for tight time-based correlation.
+
 ## Retention
 
 Retention is defined by data class and jurisdiction. Raw payload retention may differ from normalized facts, traces, prompts, and audit records. Legal hold and security-investigation requirements override ordinary deletion schedules through approved governance processes.
+
+Data-subject erasure obligations conflict directly with append-only audit immutability. This conflict MUST be reconciled through crypto-erasure or tokenization of personal fields — erasing the encryption key or token while preserving the immutable audit record (`NFR-SEC-010`). The data-subject-erasure process must be defined before production.

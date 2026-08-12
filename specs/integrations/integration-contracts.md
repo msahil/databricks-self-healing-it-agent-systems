@@ -84,6 +84,33 @@ ServiceNow remains authoritative for records it owns. Conflicts must be surfaced
 - Keep security response authority separate from general IT remediation authority.
 - Validate product availability, regional support, and interface details during implementation planning.
 
+## Lumos
+
+Lumos is treated as an identity, access, and entitlement governance source. This role is assumed from the customer architecture and must be confirmed during implementation planning (Residual Open Decision RD-3 in `specs/reviews/red-team-review-001.md`).
+
+- Consume access-request, grant, revocation, and entitlement-change signals as canonical `identity` and `change` events.
+- Use entitlement context to enrich incidents (who has access to an affected asset) and to inform authorization decisions, never to bypass them.
+- Read-only by default; any Lumos-mediated access change is a mutating action that MUST pass the action gateway and approval policy.
+- Preserve Lumos request and grant identifiers and honor source-of-record precedence with enterprise identity.
+
+## Event Authenticity and Trust
+
+- The event bridge MUST authenticate producers and verify source signatures where available.
+- Events used as the sole justification for an autonomous or mutating action MUST carry `integrity.signature_status = verified` (`FR-TEL-007`). Unverified or failed-signature events are advisory: they may inform display and human analysis but MUST NOT be the sole basis for a mutating plan.
+- Webhook endpoints MUST enforce authentication, signature verification, and replay protection (nonce or bounded timestamp window). A spoofed or replayed source event MUST NOT be able to drive a remediation recommendation on its own.
+
+## Loop Prevention
+
+- Events causally produced by the platform's own actions (via `ACTION --> EVENT`) MUST be origin-tagged.
+- Origin-tagged events MUST NOT be re-ingested as independent source signals for correlation or diagnosis (`FR-ACT-009`).
+- The orchestrator MUST enforce a per-target action rate limit and a post-action suppression window so that transient post-remediation telemetry does not trigger further automated action.
+
+## Unknown-Result Reconciliation
+
+- Every mutating skill MUST declare a reconciliation probe that determines whether the action took effect (`FR-ACT-008`).
+- On an `unknown_result`, the action gateway MUST reconcile actual target state before any retry. No mutating retry may occur until state is confirmed.
+- Targets that support neither idempotency keys nor a reconciliation probe MUST be classified non-autonomous and require manual confirmation before any retry.
+
 ## MCP and A2A
 
 - MCP servers are treated as tool adapters, not trust boundaries.

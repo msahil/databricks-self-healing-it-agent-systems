@@ -104,7 +104,9 @@ The action gateway validates approval tokens and execution preconditions, applie
 
 ```mermaid
 stateDiagram-v2
-  [*] --> Detected
+  [*] --> Situation: signals grouped
+  Situation --> Detected: promotion criteria met
+  Situation --> Suppressed: not actionable
   Detected --> Enriching
   Enriching --> Correlating
   Correlating --> Diagnosing
@@ -114,16 +116,39 @@ stateDiagram-v2
   AwaitingApproval --> Executing
   AwaitingApproval --> Escalated: rejected or expired
   Executing --> Verifying
+  Executing --> Escalated: execution failed or gateway unavailable
   Verifying --> Resolved
   Verifying --> RollingBack: health worsened
   RollingBack --> Verifying
+  RollingBack --> Escalated: rollback failed
   Verifying --> Escalated: inconclusive or failed
   Monitoring --> Resolved
+  Monitoring --> Diagnosing: re-degraded
+  Resolved --> Reopened: recurs within window
+  Reopened --> Enriching
+  Detected --> Merged: duplicate of another incident
   Escalated --> [*]
   Resolved --> [*]
+  Merged --> [*]
+  Suppressed --> [*]
 ```
 
 State transitions must be persisted as append-only events. A material state change cannot exist solely in application memory or an agent trace.
+
+### Situation-to-incident promotion
+
+Correlation produces *situations* (grouped signals) before an incident is confirmed. A situation is promoted to a tracked incident only when explicit, recorded promotion criteria are met — severity, service criticality, actionability, or an operator decision — per `FR-COR-006`. A situation that is never actionable terminates as `Suppressed`; the originating situation identifier is preserved on any promoted incident.
+
+### State dwell timeouts
+
+Every non-terminal state must define a maximum dwell time. An incident that exceeds the dwell budget for its current state transitions to `Escalated` rather than stalling silently. `AwaitingApproval` additionally expires via the bound approval token. Dwell budgets are configurable per severity and environment.
+
+### Reopen, rollback failure, and execution failure
+
+- A `Resolved` incident that recurs within a configurable window is `Reopened` and re-enters at `Enriching` (per `FR-VER-006`); prior history is preserved and linked.
+- If a rollback itself fails, the incident escalates rather than becoming trapped in `RollingBack`.
+- A catastrophic execution failure or an action-gateway outage during `Executing` escalates directly, independent of verification.
+- A `Monitoring` (no-action) incident that later worsens re-enters `Diagnosing`.
 
 ## Deployment Boundaries
 
